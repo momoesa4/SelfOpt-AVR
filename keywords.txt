@@ -1,0 +1,38 @@
+#######################################
+# SelfOptScheduler Library Keywords
+#######################################
+
+#######################################
+# Classes (KEYWORD1)
+#######################################
+SelfOptScheduler	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+registerTask	KEYWORD2
+runTaskWithProfile	KEYWORD2
+autoTuneTask	KEYWORD2
+printStatus	KEYWORD2
+freeMemory	KEYWORD2
+sensorTask	KEYWORD2
+controlTask	KEYWORD2
+loggerTask	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+MAX_TASKS	LITERAL1
+EWMA_ALPHA_NUM	LITERAL1
+EWMA_ALPHA_DEN	LITERAL1
+DEFAULT_PERIOD_MS	LITERAL1
+RUNTIME_HIGH_TH_MS	LITERAL1
+RUNTIME_LOW_TH_MS	LITERAL1
+PERIOD_MAX_MS	LITERAL1
+PERIOD_MIN_MS	LITERAL1
+
+#######################################
+# Types (KEYWORD2)
+#######################################
+task_fn_t	KEYWORD2
+Task	KEYWORD2
