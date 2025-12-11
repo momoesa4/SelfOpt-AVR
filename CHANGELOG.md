@@ -1,4 +1,4 @@
-[1.0.0] - Initial Professional Release
+#[1.0.0] - Initial Professional Release
 Added
 Core Scheduler Engine: A lightweight, self-optimizing adaptive task scheduler.
 
