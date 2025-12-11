@@ -1,0 +1,8 @@
+*.o
+*.elf
+*.hex
+build/
+.vscode/
+.DS_Store
+/mnt/
+/tmp/
