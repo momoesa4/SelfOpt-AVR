@@ -3,95 +3,60 @@
 
 #include <Arduino.h>
 
-#define SOS_MAX_TASKS 8
-#define SOS_NAME_LEN 16
+#define MAX_TASKS 8
 
 typedef void (*task_fn_t)(void);
-typedef void (*event_cb_t)(const char* event, const char* details);
+typedef void (*event_callback_t)(const char*, const char*);
 
 struct Task {
-    char name[SOS_NAME_LEN];
+    const char* name;
     task_fn_t fn;
-    uint32_t period_ms;           // desired period (may be tuned)
-    uint32_t base_period_ms;      // original requested period
-    uint32_t last_run_ms;         // millis() timestamp of last run
-    uint32_t ewma_runtime_us;     // EWMA of runtime in microseconds
-    uint32_t runs;                // number of times run (for stats)
+    uint32_t period_ms;
+    uint32_t last_run;
+    uint32_t ewma_runtime_us;
+    uint32_t runs;
     bool enabled;
-    uint8_t priority;
 };
 
 class SelfOptScheduler {
 public:
-    // constructors
-    SelfOptScheduler(uint8_t maxTasks = SOS_MAX_TASKS);
+    SelfOptScheduler(uint8_t maxTasks = MAX_TASKS);
 
-    // lifecycle
-    void begin();
+    bool registerTask(const char* name, task_fn_t fn, uint32_t period);
     void run();
 
-    // task management
-    int8_t registerTask(const char* name, task_fn_t fn, uint32_t period_ms, uint8_t priority = 1);
-    void addTask(task_fn_t fn, uint32_t period_ms, uint8_t priority = 1) __attribute__((deprecated));
-    void enableTask(uint8_t id);
-    void disableTask(uint8_t id);
-    void toggleTask(uint8_t id);
-    void resetAdaptiveSystem();
+    // Diagnostics
+    uint16_t getCpuLoad() const;
+    int getFreeMemory() const;
 
-    // features toggles
-    void enableAdaptiveTuning(bool en);
-    void enableMemoryProtection(bool en);
+    // Features
+    void enableAdaptiveTuning(bool e);
+    void enableMemoryProtection(bool e);
+    void setEventCallback(event_callback_t cb);
     void setStatusInterval(uint32_t ms);
-    void setEventCallback(event_cb_t cb);
 
-    // info
-    float getCpuLoad();         // percent 0..100
-    int getFreeMemory();        // bytes free (approx)
-    void printStatus(Stream &out = Serial);
-    void printDetails(Stream &out = Serial);
-
-    // serial commands (should be called regularly from loop)
+    // Serial commands
     void handleSerialCommands();
 
 private:
-    Task *tasks;
+    Task* tasks;
     uint8_t maxTasks;
     uint8_t taskCount;
 
-    // adaptive/control params
+    // System
+    event_callback_t eventCb;
     bool adaptiveEnabled;
-    bool memProtectEnabled;
-    uint32_t statusIntervalMs;
-    uint32_t lastStatusMs;
+    bool memoryProtect;
+    uint32_t lastStatusPrint;
+    uint32_t statusInterval;
 
-    // CPU / timing measurement
-    uint64_t totalTaskTimeWindowUs; // sum of task runtimes in window
-    uint32_t lastWindowMs;
-    float cpuLoadEWMA;              // smoothed cpu load %
-    const float cpuEWMA_ALPHA = 0.1f;
-
-    // events
-    event_cb_t eventCallback;
-
-    // internal helpers
-    uint32_t measureRuntimeUs(task_fn_t fn);
-    void updateTaskStats(Task &t, uint32_t runtimeUs);
-    void adaptiveTune(Task &t);
-    void maybeProtectMemory();
-    void postEvent(const char* ev, const char* details);
-    void ensureInit();
-
-    // serial command helpers
-    void cmdStatus();
-    void cmdDetails();
-    void cmdList();
-    void cmdMemory();
-    void cmdCpu();
-    void cmdToggle(const char* arg);
-    void cmdReset();
-
-    // utilities
-    int freeMemoryInternal();
+    // Internal
+    uint32_t measureRuntime(task_fn_t fn);
+    void adaptTask(Task& t);
+    void sendEvent(const char* evt, const char* details);
+    void printStatus();
+    void printDetails();
+    void listTasks();
 };
 
 #endif
